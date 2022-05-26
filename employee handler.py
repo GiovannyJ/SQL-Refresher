@@ -14,7 +14,7 @@ def create_id():
     id = time.time()
     return id
         
-    
+# simple employee class
 class employee:
     def __init__(self, first_name: str, last_name: str, phone_number: int, title: str) -> None:
         self.fname = first_name
@@ -65,7 +65,7 @@ def remove_employee(*e) -> None:
             cursor.execute(executeStatement, (arg, ))
             connection.commit()
         else:
-            print("error bro")
+            print("error user ID cannot be found: cannot remove")
 
 def promote_employee(e, new_title: str) -> None:
     if type(e) == employee:
@@ -77,10 +77,10 @@ def promote_employee(e, new_title: str) -> None:
         cursor.execute(executeStatement, (new_title ,e))
         connection.commit()
     else:
-        print("error promo bromo")
+        print("error user ID cannot be found: cannot promote")
 
 #?  add diff ways to search for user
-def display_employee(e):
+def display_employee(e) -> str:
     if type(e) ==  employee:
         executionStatement = "SELECT * FROM EMPLOYEES WHERE id = ?"
         cursor.execute(executionStatement, (e.get_id(), ))
@@ -91,6 +91,8 @@ def display_employee(e):
         cursor.execute(executionStatement, (e, ))
         display = cursor.fetchall()
         return display
+    else:
+        print("user ID not found: cannot display")
 
 
 
