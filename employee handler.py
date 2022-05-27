@@ -20,7 +20,7 @@ def check_id(id):
 #! fix later
 def create_id():
     id = time.time()
-    
+    time.sleep(0.01)
     if check_id(id) == False:
         return id
     else: 
