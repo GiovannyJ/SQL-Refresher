@@ -8,11 +8,23 @@ cursor = connection.cursor()
 #! change length for id
 cursor.execute("CREATE TABLE IF NOT EXISTS EMPLOYEES(id n(5), fname char(15), lname char(15), pnum n(10), title char(10));")
 
+# check if id is already used 
+def check_id(id):
+    executeStatement = 'select * from EMPLOYEES where id=?'
+    exist = cursor.execute(executeStatement, (id,)).fetchall()
+
+    # returns bool
+    return len(exist) == 1
+
 # create unique id that not in databse yet
-# !fix later
+#! fix later
 def create_id():
     id = time.time()
-    return id
+    time.sleep(0.01)
+    if check_id(id) == False:
+        return id
+    else: 
+        create_id()
         
 # simple employee class
 class employee:
@@ -84,12 +96,12 @@ def display_employee(e) -> str:
     if type(e) ==  employee:
         executionStatement = "SELECT * FROM EMPLOYEES WHERE id = ?"
         cursor.execute(executionStatement, (e.get_id(), ))
-        display = cursor.fetchall()
+        display = cursor.fetchone()
         return display
     elif type(e) == int or float:
         executionStatement = "SELECT * FROM EMPLOYEES WHERE id = ?"
         cursor.execute(executionStatement, (e, ))
-        display = cursor.fetchall()
+        display = cursor.fetchone()
         return display
     else:
         print("user ID not found: cannot display")
@@ -102,9 +114,9 @@ def main():
     employee3 = employee("Chris", "Lopez", 5168928777,  "Backend Dev")
     employee4 = employee("Sarah", "Pietrafesa", 5164453823, "Frontend Dev")
     employee5 = employee("Nikki", "Heat", 999999999, "CEO")
-    employee6 = employee("Seb", "Jospeh", 5162835777, "Janitor")
+    employee6 = employee("Seb", "Joseph", 5162835777, "Janitor")
 
-    add_employee(employee1, employee2, employee3, employee4, employee5)
+    add_employee(employee1, employee2, employee3, employee4, employee5, employee6)
 
 
 if __name__ == '__main__':
