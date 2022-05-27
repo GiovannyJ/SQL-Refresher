@@ -102,6 +102,7 @@ def main():
     employee3 = employee("Chris", "Lopez", 5168928777,  "Backend Dev")
     employee4 = employee("Sarah", "Pietrafesa", 5164453823, "Frontend Dev")
     employee5 = employee("Nikki", "Heat", 999999999, "CEO")
+    employee6 = employee("Seb", "Jospeh", 5162835777, "Janitor")
 
     add_employee(employee1, employee2, employee3, employee4, employee5)
 
