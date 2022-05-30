@@ -19,12 +19,12 @@ class Employee{
         string first_name;
         string last_name;
         string email;
-        int phone_num;
+        long phone_num;
         int id;
         string Title;
 
     public: 
-        Employee(string fname, string lname, int pnum, string title){
+        Employee(string fname, string lname, long pnum, string title){
             first_name = fname;
             last_name = lname;
             phone_num = pnum;
