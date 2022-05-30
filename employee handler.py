@@ -116,7 +116,7 @@ def main():
     employee5 = employee("Nikki", "Heat", 999999999, "CEO")
     employee6 = employee("Seb", "Joseph", 5162835777, "Janitor")
 
-    add_employee(employee1, employee2, employee3, employee4, employee5)
+    add_employee(employee1, employee2, employee3, employee4, employee5, employee6)
 
 
 if __name__ == '__main__':
