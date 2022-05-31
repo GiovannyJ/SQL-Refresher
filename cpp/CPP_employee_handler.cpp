@@ -5,15 +5,7 @@
 
 using namespace std;
 
-// bool check_id(int id){
-//  // get all cases with given id value and return bool of if it is 1 or nah   
-// }
-
-int create_id(){
-    // using time create unique id and check if it exists > return it >> no = recursive
-    return 10;
-}
-
+//immutable 
 class Employee{
     private:
         string first_name;
@@ -23,6 +15,7 @@ class Employee{
         int id;
         string Title;
 
+    //constructor
     public: 
         Employee(string fname, string lname, long pnum, string title){
             first_name = fname;
@@ -33,6 +26,7 @@ class Employee{
             Title = title;
         }
 
+        //getter methods
         string get_fname(){
             return first_name;
         }
@@ -56,27 +50,58 @@ class Employee{
         string get_title(){
             return Title;
         }
+        //private methods for the class
+        private:
+            static bool check_id(int id){
+                //check if id is unique in database
+                return id == 9;
+            }
+
+            static int create_id(){
+                // using time create unique id and check if it exists > return it >> no = recursive
+                return 10;
+            }
 };
 
-// void add_employee(int *e){
-//     //adds all employees given by input
-// }
+//interaction with database functions
+void add_employee(Employee e){
+    //adds all employees given by input
+    cout << "Employee " + e.get_fname() + " has been added to the database";
+}
 
 // void remove_employee(int *e){
-//     //removes all employee given by input
+//     // checks database removes all employee given by input
 // }
 
 // void promote_employee(int e, string new_title){
-//     //promotes empolyees to new title given
+//     //checks database promotes empolyees to new title given
 // }
 
 // string display_employee(int e){
-//     //prints employees
+//     //prints employee from database
 // }
 
-int main(){
+int main(int argc, char** argv){
+    //creating employee objects
     Employee employee1("Gio", "Joseph", 2156325126, "Backend Dev");
-    cout << employee1.get_email();
+    Employee employee2("Nicole", "Joseph", 893246123, "CEO");
 
+    cout << employee1.get_email() << endl;
+    
+
+    //connecting to database
+    sqlite3* DB;
+    int exit = 0;
+    exit = sqlite3_open("Employee_info.db", &DB);
+
+    if(exit){
+        std:: cerr << "Error opening db " << sqlite3_errmsg(DB) << std::endl;
+        return(-1);
+    }
+    else{
+        std::cout << "opened database" << std::endl;
+    }
+    sqlite3_close(DB);
+    
     return(0);
 }
