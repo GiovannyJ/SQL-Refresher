@@ -6,11 +6,11 @@ connection = sqlite3.connect('Employee_info.db')
 cursor = connection.cursor()
 
 #! change length for id
-cursor.execute("CREATE TABLE IF NOT EXISTS EMPLOYEES(id n(5), fname char(15), lname char(15), pnum n(10), title char(10));")
+cursor.execute("CREATE TABLE IF NOT EXISTS EMPLOYEES_PY(id n(5), fname text, lname text, pnum n(10), title text);")
 
 # check if id is already used 
 def check_id(id):
-    executeStatement = 'select * from EMPLOYEES where id=?'
+    executeStatement = 'select * from EMPLOYEES_PY where id=?'
     exist = cursor.execute(executeStatement, (id,)).fetchall()
 
     # returns bool
@@ -57,7 +57,7 @@ class employee:
 def add_employee(*e) -> None:
     #iterate over given values and add each one to db
     for arg in e:
-        executeStatement = "INSERT INTO EMPLOYEES VALUES (?, ?, ?, ?, ?)"
+        executeStatement = "INSERT INTO EMPLOYEES_PY VALUES (?, ?, ?, ?, ?)"
         values = [arg.get_id(), arg.get_fname(), arg.get_lname(), arg.get_pnum(), arg.get_title()]
         cursor.executemany(executeStatement, (values, ))
         connection.commit()
@@ -68,12 +68,12 @@ def remove_employee(*e) -> None:
     for arg in e:
         # removing if arg is class type
         if type(arg) == employee:
-            executeStatement = "DELETE FROM EMPLOYEES WHERE id = ?"
+            executeStatement = "DELETE FROM EMPLOYEES_PY WHERE id = ?"
             cursor.execute(executeStatement, (arg.get_id(), ))
             connection.commit()
         #rm if arg is number given by user
         elif type(arg) == int or float:
-            executeStatement = "DELETE FROM EMPLOYEES WHERE id = ?"
+            executeStatement = "DELETE FROM EMPLOYEES_PY WHERE id = ?"
             cursor.execute(executeStatement, (arg, ))
             connection.commit()
         else:
@@ -81,11 +81,11 @@ def remove_employee(*e) -> None:
 
 def promote_employee(e, new_title: str) -> None:
     if type(e) == employee:
-        executeStatement = "UPDATE EMPLOYEES set title = ? where id = ?"
+        executeStatement = "UPDATE EMPLOYEES_PY set title = ? where id = ?"
         cursor.execute(executeStatement, (new_title ,e.get_id()))
         connection.commit()
     elif type(e) == int or float:
-        executeStatement = "UPDATE EMPLOYEES set title = ? where id = ?"
+        executeStatement = "UPDATE EMPLOYEES_PY set title = ? where id = ?"
         cursor.execute(executeStatement, (new_title ,e))
         connection.commit()
     else:
@@ -94,12 +94,12 @@ def promote_employee(e, new_title: str) -> None:
 #?  add diff ways to search for user
 def display_employee(e) -> str:
     if type(e) ==  employee:
-        executionStatement = "SELECT * FROM EMPLOYEES WHERE id = ?"
+        executionStatement = "SELECT * FROM EMPLOYEES_PY WHERE id = ?"
         cursor.execute(executionStatement, (e.get_id(), ))
         display = cursor.fetchone()
         return display
     elif type(e) == int or float:
-        executionStatement = "SELECT * FROM EMPLOYEES WHERE id = ?"
+        executionStatement = "SELECT * FROM EMPLOYEES_PY WHERE id = ?"
         cursor.execute(executionStatement, (e, ))
         display = cursor.fetchone()
         return display
