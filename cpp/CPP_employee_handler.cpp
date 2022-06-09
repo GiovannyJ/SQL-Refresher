@@ -2,7 +2,6 @@
 #include <string>
 #include <stdio.h>
 #include <sqlite3.h>
-#include <sstream>
 
 using namespace std;
 
@@ -12,7 +11,6 @@ class Employee{
         string first_name;
         string last_name;
         string email;
-        //! turn back into long 
         string phone_num;
         //! turn back into int
         string id;
@@ -25,7 +23,7 @@ class Employee{
             last_name = lname;
             phone_num = pnum;
             email = fname + lname + "@company.com";
-            id = "10";//?create_id();
+            id = create_id();
             Title = title;
         }
 
@@ -41,7 +39,7 @@ class Employee{
         string get_email(){
             return email;
         }
-        //! should be type(long)
+
         string get_phone_num(){
             return phone_num;
         }
@@ -55,14 +53,17 @@ class Employee{
         }
         //private methods for the class
         private:
+            //! might need to compare string to retrived string from database
             static bool check_id(int id){
                 //check if id is unique in database
                 return id == 9;
             }
-
-            static int create_id(){
+            //! might need to return string
+            static string create_id(){
                 // using time create unique id and check if it exists > return it >> no = recursive
-                return 10;
+                int id = rand();
+                std::string id_s = std::to_string(id);
+                return id_s;
             }
 };
 
@@ -96,21 +97,27 @@ void init_employee_table(){
 }
 
 //interaction with database functions
+
+//adds all employees given by input
 void add_employee(Employee e){
-    //adds all employees given by input
+    
+    //init connection
     sqlite3* DB;
     char* msgErr;
     int exit = sqlite3_open("Employee_info.db", &DB);
-    
-    // string insert_string = ("INSERT INTO EMPLOYEES_CPP (id, fname, lname, pnum, title) VALUES(%s,%s,%s,%s,%s);", 
-    // e.get_id(), e.get_fname(), e.get_lname(), e.get_phone_num(), e.get_title());
-    std::ostringstream insert;
-    insert << "INSERT INTO EMPLOYEES_CPP (id, fname, lname, pnum, title) VALUES(" 
-    << e.get_id() << ", " << e.get_fname() << ", " << e.get_lname() << ", " << e.get_phone_num() << ", " << e.get_title() << ");";
-    
-    char *sql_insert = const_cast<char*>(insert.str().c_str());
-    sqlite3_exec(DB, sql_insert, NULL, 0, &msgErr);
 
+    //assign var to getter methods
+    string id = e.get_id();
+    string fname = e.get_fname();
+    string lname = e.get_lname();
+    string pnum = e.get_phone_num();
+    string title = e.get_title();
+    
+    //create querery statement
+    string insertStmt = "INSERT INTO EMPLOYEES_CPP (id, fname, lname, pnum, title) VALUES('"+id+"','"+fname+"','"+lname+"','"+pnum+"','"+title+"');";
+    exit = sqlite3_exec(DB, insertStmt.c_str(), NULL, 0, &msgErr);
+
+    //light error handling
     if(exit != SQLITE_OK){
         std::cerr << "ERROR INSERTING VALUES" << std::endl;
         sqlite3_free(msgErr);
@@ -118,11 +125,28 @@ void add_employee(Employee e){
     else{
         std::cout << "Records added successfully\n"; 
     }
+    // end connection
+    sqlite3_close(DB);
 }
 
-// void remove_employee(int *e){
-//     // checks database removes all employee given by input
-// }
+// checks database removes all employee given by input
+void remove_employee(string id){
+    sqlite3* DB;
+    char* msgErr;
+    int exit = sqlite3_open("Employee_info.db", &DB);
+
+    string deleteStmt = "REMOVE FROM EMPLOYEES_CPP WHERE id = '"+id+"';";
+    exit = sqlite3_exec(DB, deleteStmt.c_str(), NULL, 0, &msgErr);
+
+    if(exit != SQLITE_OK){
+        std::cerr << "ERROR DELETING VALUES" << std::endl;
+        sqlite3_free(msgErr);
+    }
+    else{
+        std::cout << "Record Deleted successfully\n";
+    }
+    sqlite3_close(DB);
+}
 
 // void promote_employee(int e, string new_title){
 //     //checks database promotes empolyees to new title given
@@ -135,7 +159,7 @@ void add_employee(Employee e){
 int main(int argc, char** argv){
     //creating employee objects
     Employee employee1("Gio", "Joseph", "215-632-5126", "Backend Dev");
-    // Employee employee2("Nicole", "Joseph", 893246123, "CEO");
+    Employee employee2("Nicole", "Joseph", "893-246-0123", "CEO");
 
     cout << employee1.get_email() << endl;
     cout << employee1.get_id() << endl;
@@ -144,9 +168,10 @@ int main(int argc, char** argv){
     init_employee_table();
 
     //adding employee
-    add_employee(employee1);
+    //add_employee(employee1);
+    add_employee(employee2);
     //deleting emplpoyee
-
+    remove_employee("41");
     //displaying employee
     
     return(0);
