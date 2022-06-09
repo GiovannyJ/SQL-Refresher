@@ -2,6 +2,7 @@
 #include <string>
 #include <stdio.h>
 #include <sqlite3.h>
+#include <sstream>
 
 using namespace std;
 
@@ -101,18 +102,21 @@ void add_employee(Employee e){
     char* msgErr;
     int exit = sqlite3_open("Employee_info.db", &DB);
     
-    string insert_string = ("INSERT INTO EMPLOYEES_CPP (id, fname, lname, pnum, title) VALUES(%s,%s,%s,%s,%s);", 
-    e.get_id(), e.get_fname(), e.get_lname(), e.get_phone_num(), e.get_title());
+    // string insert_string = ("INSERT INTO EMPLOYEES_CPP (id, fname, lname, pnum, title) VALUES(%s,%s,%s,%s,%s);", 
+    // e.get_id(), e.get_fname(), e.get_lname(), e.get_phone_num(), e.get_title());
+    std::ostringstream insert;
+    insert << "INSERT INTO EMPLOYEES_CPP (id, fname, lname, pnum, title) VALUES(" 
+    << e.get_id() << ", " << e.get_fname() << ", " << e.get_lname() << ", " << e.get_phone_num() << ", " << e.get_title() << ");";
     
-    
-    sqlite3_exec(DB, insert_string.c_str(), NULL, 0, &msgErr);
+    char *sql_insert = const_cast<char*>(insert.str().c_str());
+    sqlite3_exec(DB, sql_insert, NULL, 0, &msgErr);
 
     if(exit != SQLITE_OK){
         std::cerr << "ERROR INSERTING VALUES" << std::endl;
         sqlite3_free(msgErr);
     }
     else{
-        std::cout << "Records added successfully"; //<< std::end;
+        std::cout << "Records added successfully\n"; 
     }
 }
 
