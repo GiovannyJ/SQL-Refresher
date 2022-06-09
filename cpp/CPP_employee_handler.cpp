@@ -11,18 +11,20 @@ class Employee{
         string first_name;
         string last_name;
         string email;
-        long phone_num;
-        int id;
+        //! turn back into long 
+        string phone_num;
+        //! turn back into int
+        string id;
         string Title;
 
     //constructor
     public: 
-        Employee(string fname, string lname, long pnum, string title){
+        Employee(string fname, string lname, string pnum, string title){
             first_name = fname;
             last_name = lname;
             phone_num = pnum;
             email = fname + lname + "@company.com";
-            id = create_id();
+            id = "10";//?create_id();
             Title = title;
         }
 
@@ -38,12 +40,12 @@ class Employee{
         string get_email(){
             return email;
         }
-
-        int get_phone_num(){
+        //! should be type(long)
+        string get_phone_num(){
             return phone_num;
         }
-
-        int get_id(){
+        //! should be type(int)
+        string get_id(){
             return id;
         }
 
@@ -63,10 +65,55 @@ class Employee{
             }
 };
 
+static int callback(void* data, int argc, char** argv, char** azColName){
+    int i;
+    fprintf(stderr, "%s:", (const char*)data);
+
+    for(i = 0; i < argc; i++){
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i]: "NULL");
+    }
+    printf("\n");
+    return 0;
+}
+
+void init_employee_table(){
+    sqlite3* DB;
+    std::string table = "CREATE TABLE IF NOT EXISTS EMPLOYEES_CPP(id n(5), fname text, lname text, pnum n(10), title text);";
+
+    int exit = 0;
+    exit = sqlite3_open("Employee_info.db", &DB);
+    char* msgErr;
+
+    exit = sqlite3_exec(DB, table.c_str(), NULL, 0, &msgErr);
+
+    if (exit != SQLITE_OK){
+        std::cerr << "Error Creating the table" << std::endl;
+    }else{
+        std::cout<<"Table Created Successfully" << std::endl;
+    }
+    sqlite3_close(DB);
+}
+
 //interaction with database functions
 void add_employee(Employee e){
     //adds all employees given by input
-    cout << "Employee " + e.get_fname() + " has been added to the database";
+    sqlite3* DB;
+    char* msgErr;
+    int exit = sqlite3_open("Employee_info.db", &DB);
+    
+    string insert_string = ("INSERT INTO EMPLOYEES_CPP (id, fname, lname, pnum, title) VALUES(%s,%s,%s,%s,%s);", 
+    e.get_id(), e.get_fname(), e.get_lname(), e.get_phone_num(), e.get_title());
+    
+    
+    sqlite3_exec(DB, insert_string.c_str(), NULL, 0, &msgErr);
+
+    if(exit != SQLITE_OK){
+        std::cerr << "ERROR INSERTING VALUES" << std::endl;
+        sqlite3_free(msgErr);
+    }
+    else{
+        std::cout << "Records added successfully"; //<< std::end;
+    }
 }
 
 // void remove_employee(int *e){
@@ -83,25 +130,20 @@ void add_employee(Employee e){
 
 int main(int argc, char** argv){
     //creating employee objects
-    Employee employee1("Gio", "Joseph", 2156325126, "Backend Dev");
-    Employee employee2("Nicole", "Joseph", 893246123, "CEO");
+    Employee employee1("Gio", "Joseph", "215-632-5126", "Backend Dev");
+    // Employee employee2("Nicole", "Joseph", 893246123, "CEO");
 
     cout << employee1.get_email() << endl;
+    cout << employee1.get_id() << endl;
     
+    //creating table
+    init_employee_table();
 
-    //connecting to database
-    sqlite3* DB;
-    int exit = 0;
-    exit = sqlite3_open("Employee_info.db", &DB);
+    //adding employee
+    add_employee(employee1);
+    //deleting emplpoyee
 
-    if(exit){
-        std:: cerr << "Error opening db " << sqlite3_errmsg(DB) << std::endl;
-        return(-1);
-    }
-    else{
-        std::cout << "opened database" << std::endl;
-    }
-    sqlite3_close(DB);
+    //displaying employee
     
     return(0);
 }
