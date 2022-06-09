@@ -27,6 +27,7 @@ def create_id():
         create_id()
         
 # simple employee class
+#! need to make class immutable so that values are final when sent to database
 class employee:
     def __init__(self, first_name: str, last_name: str, phone_number: int, title: str) -> None:
         self.fname = first_name
