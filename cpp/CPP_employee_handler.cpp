@@ -2,6 +2,7 @@
 #include <string>
 #include <stdio.h>
 #include <sqlite3.h>
+#include <ctime>
 
 using namespace std;
 
@@ -12,7 +13,6 @@ class Employee{
         string last_name;
         string email;
         string phone_num;
-        //! turn back into int
         string id;
         string Title;
 
@@ -53,20 +53,47 @@ class Employee{
         }
         //private methods for the class
         private:
-            //! might need to compare string to retrived string from database
-            static bool check_id(int id){
+            //! need to figure out how to compare variable with database
+            static bool check_id(string id){
                 //check if id is unique in database
-                return id == 9;
+                sqlite3* DB;
+                char* msgErr;
+                int exit = sqlite3_open("Employee_info.db", &DB);
+                string checkIdStmt = "SELECT * FROM EMPLOYEES_CPP WHERE id = '"+id+"';";
+
+                exit = sqlite3_exec(DB, checkIdStmt.c_str(), NULL, 0, &msgErr);
+                
+                if (exit != SQLITE_OK){
+                    std::cerr << "Error finding values in the table" << std::endl;
+                }
+                sqlite3_close(DB);
+                if(exit == 0){
+                    return false;
+                }
+                else{
+                    return true;
+                }
             }
-            //! might need to return string
+
             static string create_id(){
                 // using time create unique id and check if it exists > return it >> no = recursive
-                int id = rand();
-                std::string id_s = std::to_string(id);
-                return id_s;
+                time_t current_time;
+                time(&current_time);
+                //use check_id func if false return if true recursvie
+                std::string id_s = std::to_string(current_time);
+
+                cout<< "check id is here:";
+                if(check_id(id_s) == false){
+                    return id_s;
+                }
+                else{
+                    create_id();
+                }
+                
             }
 };
 
+//getting all values from a column
 static int callback(void* data, int argc, char** argv, char** azColName){
     int i;
     fprintf(stderr, "%s:", (const char*)data);
@@ -80,12 +107,10 @@ static int callback(void* data, int argc, char** argv, char** azColName){
 
 void init_employee_table(){
     sqlite3* DB;
-    std::string table = "CREATE TABLE IF NOT EXISTS EMPLOYEES_CPP(id n(5), fname text, lname text, pnum n(10), title text);";
-
-    int exit = 0;
-    exit = sqlite3_open("Employee_info.db", &DB);
     char* msgErr;
-
+    int exit = sqlite3_open("Employee_info.db", &DB);
+    
+    string table = "CREATE TABLE IF NOT EXISTS EMPLOYEES_CPP(id text NOT NULL, fname text NOT NULL, lname text NOT NULL, pnum text NOT NULL, title text NOT NULL);";
     exit = sqlite3_exec(DB, table.c_str(), NULL, 0, &msgErr);
 
     if (exit != SQLITE_OK){
@@ -135,7 +160,7 @@ void remove_employee(string id){
     char* msgErr;
     int exit = sqlite3_open("Employee_info.db", &DB);
 
-    string deleteStmt = "REMOVE FROM EMPLOYEES_CPP WHERE id = '"+id+"';";
+    string deleteStmt = "DELETE FROM EMPLOYEES_CPP WHERE id = '"+id+"';";
     exit = sqlite3_exec(DB, deleteStmt.c_str(), NULL, 0, &msgErr);
 
     if(exit != SQLITE_OK){
@@ -148,31 +173,74 @@ void remove_employee(string id){
     sqlite3_close(DB);
 }
 
-// void promote_employee(int e, string new_title){
-//     //checks database promotes empolyees to new title given
-// }
+//checks database promotes empolyees to new title given
+void promote_employee(string id, string new_title){
+    sqlite3* DB;
+    char* msgErr;
+    int exit = sqlite3_open("Employee_info.db", &DB);
 
-// string display_employee(int e){
-//     //prints employee from database
-// }
+    string promoteStmt = "UPDATE EMPLOYEES_CPP set title = '"+new_title+"' where id = '"+id+"';";
+
+    exit = sqlite3_exec(DB, promoteStmt.c_str(), NULL, 0, &msgErr);
+
+    if(exit != SQLITE_OK){
+        std::cerr << "ERROR PROMOTING EMPLOYEE" << std::endl;
+        sqlite3_free(msgErr);
+    }
+    else{
+        std::cout << "Record updated successfully\n";
+    }
+    sqlite3_close(DB);
+}
+
+//prints employee from database
+void display_employee(string id){
+    sqlite3* DB;
+    char* msgErr;
+    int exit = sqlite3_open("Employee_info.db", &DB);
+
+    string displayStmt = "SELECT * FROM EMPLOYEES_CPP WHERE id = '"+id+"';";
+    
+    std::cout << "Employee:\n";
+    exit = sqlite3_exec(DB, displayStmt.c_str(), callback, 0, &msgErr);
+
+    if(exit != SQLITE_OK){
+        std::cerr << "ERROR DISPLAYING EMPLOYEE" << std::endl;
+        sqlite3_free(msgErr);
+    }
+    else{
+        std::cout << exit;
+    }
+    sqlite3_close(DB);
+}
 
 int main(int argc, char** argv){
+    //creating table
+    init_employee_table();
+    
     //creating employee objects
     Employee employee1("Gio", "Joseph", "215-632-5126", "Backend Dev");
     Employee employee2("Nicole", "Joseph", "893-246-0123", "CEO");
+    Employee employee3("Some", "Dude", "999-000-1111", "Janitor");
 
     cout << employee1.get_email() << endl;
     cout << employee1.get_id() << endl;
     
-    //creating table
-    init_employee_table();
+    
 
     //adding employee
-    //add_employee(employee1);
+    add_employee(employee1);
     add_employee(employee2);
-    //deleting emplpoyee
-    remove_employee("41");
-    //displaying employee
+    add_employee(employee3);
     
+    //deleting emplpoyee
+    //remove_employee("41");
+
+    //promoting employee
+    //promote_employee("41", "Big Boss Man");
+    
+    //displaying employee
+    display_employee("41");
+
     return(0);
 }

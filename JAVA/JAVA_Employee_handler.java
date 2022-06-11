@@ -128,15 +128,15 @@ public class JAVA_Employee_handler {
         }
     }
 
-    static void deleteEmployee(long id) {
+    // static void deleteEmployee(long id) {
 
-    }
+    // }
 
-    static void promoteEmployee(long x, String newTitle) {
+    // static void promoteEmployee(long x, String newTitle) {
 
-    }
+    // }
 
-    static String displayEmployee(long id) {
-        return "";
-    }
+    // static String displayEmployee(long id) {
+    //     return "";
+    // }
 }
