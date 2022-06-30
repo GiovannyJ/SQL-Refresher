@@ -6,6 +6,18 @@
 
 using namespace std;
 
+//getting all values from a column
+static int callback(void* data, int argc, char** argv, char** azColName){
+    int i;
+    fprintf(stderr, "%s:", (const char*)data);
+
+    for(i = 0; i < argc; i++){
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i]: "NULL");
+    }
+    printf("\n");
+    return 0;
+}
+
 //immutable 
 class Employee{
     private:
@@ -59,14 +71,17 @@ class Employee{
                 sqlite3* DB;
                 char* msgErr;
                 int exit = sqlite3_open("Employee_info.db", &DB);
+                const char* data = "Callback function called";
                 string checkIdStmt = "SELECT * FROM EMPLOYEES_CPP WHERE id = '"+id+"';";
 
-                exit = sqlite3_exec(DB, checkIdStmt.c_str(), NULL, 0, &msgErr);
+                exit = sqlite3_exec(DB, checkIdStmt.c_str(), callback, (void*)data, &msgErr);
                 
+                //if there are errors then close the database
                 if (exit != SQLITE_OK){
                     std::cerr << "Error finding values in the table" << std::endl;
                 }
                 sqlite3_close(DB);
+                //if it exits properly
                 if(exit == 0){
                     return false;
                 }
@@ -76,34 +91,26 @@ class Employee{
             }
 
             static string create_id(){
-                // using time create unique id and check if it exists > return it >> no = recursive
+                // using time create unique id and check if it exists -> return it -> no = recursive
                 time_t current_time;
                 time(&current_time);
                 //use check_id func if false return if true recursvie
                 std::string id_s = std::to_string(current_time);
 
-                cout<< "check id is here:";
-                if(check_id(id_s) == false){
-                    return id_s;
-                }
-                else{
-                    create_id();
-                }
+                //! returning true for both
+                cout << check_id("1655410626") << endl;
+                cout << check_id("2") << endl;
+
+                // if(check_id(id_s) == false){
+                //     return id_s;
+                // }
+                // else{
+                //     create_id();
+                // }
                 
+                return 0;
             }
 };
-
-//getting all values from a column
-static int callback(void* data, int argc, char** argv, char** azColName){
-    int i;
-    fprintf(stderr, "%s:", (const char*)data);
-
-    for(i = 0; i < argc; i++){
-        printf("%s = %s\n", azColName[i], argv[i] ? argv[i]: "NULL");
-    }
-    printf("\n");
-    return 0;
-}
 
 void init_employee_table(){
     sqlite3* DB;
